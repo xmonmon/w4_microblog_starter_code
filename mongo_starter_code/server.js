@@ -25,13 +25,16 @@ function seedDB(){
     {id: 4, author: "Daniel", text: "Been relearning geometry to help niece -- owning triangles so hard right now."},
     {id: 5, author: "Evelyn", text: "We need team jackets!"},
   ];
-  // var totalPostCount = 9;
+
 
   // loop through the old post seed data, and create db records for each post
   // note that we DO NOT keep the id part  of the post --- Mongo will add an _id for us
+  console.log("posts: ", posts);
   for (var i=0; i<posts.length; i++){
+    console.log(i);
     // Post.create is the same as making a new Post instance and calling save on it
     Post.create({author: posts[i].author, text: posts[i].text}, function(err, newPost){
+      console.log("creating post with author ", posts[i].author, " and text ", posts[i].text);
       if (err) {
         console.log(err);
       } else {
@@ -40,7 +43,7 @@ function seedDB(){
     });
   }
 }
-//seedDB();
+seedDB();
 
 
 // ROUTES
@@ -60,7 +63,7 @@ app.get('/api/posts', function (req, res) {
   // find all posts from the database 
   var allPosts = Post.find({}, function(err, posts){
     if (err){
-      console.log(err);
+      console.log("error: ", err);
       res.status(500).send(err);
     } else {
       // send all posts as JSON response
