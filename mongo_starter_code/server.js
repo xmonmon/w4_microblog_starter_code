@@ -22,9 +22,7 @@ var Post = require("./models/post");
 // connect to db
 mongoose.connect('mongodb://localhost/catchphrasely');
 
-// ROUTES
-
-// Static file route(s)
+// STATIC ROUTES
 
 // root route (serves index.html)
 app.get('/', function (req, res) {
@@ -32,7 +30,7 @@ app.get('/', function (req, res) {
 });
 
 
-// Data/API routes
+// API ROUTES
 
 // get all posts
 app.get('/api/posts', function (req, res) {
@@ -109,14 +107,14 @@ app.put('/api/posts/:id', function(req, res) {
       foundPost.text = req.body.text;
 
       // save the changes
-      foundPost.save(function(err){
+      foundPost.save(function(err, savedPost){
         if (err){
           res.status(500).send(err);
+        } else {
+          // send back edited object
+          res.json(savedPhrase);
         }
       });
-
-      // send back edited object
-      res.json(foundPost);
     }
 
   });
@@ -130,13 +128,12 @@ app.delete('/api/posts/:id', function(req, res) {
   var targetId = req.params.id;
 
  // remove item from the db that matches the id
-  Post.remove({_id: targetId}, function(err, foundPosts){
+   Post.findOneAndRemove({_id: targetId}, function (err, deletedPost) {
     if (err){
-      res.status(500).send({ error: 'database error' });
+      res.status(500).send(err);
     } else {
-      // send back deleted object(s) -- will only be 1 because of unique ids
-      res.json(foundPosts);
-    }
+      // send back deleted post
+      res.json(deletedPost);
   });
 });
 
