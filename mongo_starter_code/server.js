@@ -20,7 +20,7 @@ var mongoose = require('mongoose');
 var Post = require("./models/post");
 
 // connect to db
-mongoose.connect('mongodb://localhost/catchphrasely');
+mongoose.connect('mongodb://localhost/microblog');
 
 // STATIC ROUTES
 
@@ -51,18 +51,21 @@ app.get('/api/posts', function (req, res) {
 app.post('/api/posts', function (req, res) {
   // use params (author and text) from request body
   // to create a new post
-  Post.create({ 
-                author: req.body.author, 
-                text: req.body.text 
-              }, function(err, newPost){
-                  if (err) {
-                    console.log("error: ",err);
-                    res.status(500).send(err);
-                  } else {
-                    // send newPost as JSON response
-                    res.json(newPost);
-                  }
-                });
+  var newPost = new Post({
+    author: req.body.author,
+    text: req.body.text
+  });
+
+  // save new post in db
+  newPost.save(function (err, savedPost) { 
+    if (err) {
+      console.log("error: ",err);
+      res.status(500).send(err);
+    } else {
+      // once saved, send the new post as JSON response
+      res.json(savedPost);
+    }
+  });
 });
 
 // get a single post 
@@ -112,7 +115,7 @@ app.put('/api/posts/:id', function(req, res) {
           res.status(500).send(err);
         } else {
           // send back edited object
-          res.json(savedPhrase);
+          res.json(savedPost);
         }
       });
     }
