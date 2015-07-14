@@ -137,6 +137,7 @@ app.delete('/api/posts/:id', function(req, res) {
     } else {
       // send back deleted post
       res.json(deletedPost);
+    }
   });
 });
 
