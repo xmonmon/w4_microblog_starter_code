@@ -9,18 +9,18 @@ var express = require('express'),
 // configure bodyParser (for handling data)
 app.use(bodyParser.urlencoded({extended: true}));
 
-
 // serve js and css files from public folder
 app.use(express.static(__dirname + '/public'));
 
 // include mongoose
 var mongoose = require('mongoose');
 
-// include our module from the other file
-var Post = require("./models/post");
+var db = require('./models/models');
+console.log("HEELLLOOOO",db.Post)
 
 // connect to db
 mongoose.connect('mongodb://localhost/microblog');
+
 
 // STATIC ROUTES
 
@@ -29,13 +29,12 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/public/views/index.html');
 });
 
-
 // API ROUTES
 
 // get all posts
 app.get('/api/posts', function (req, res) {
   // find all posts from the database 
-  Post.find({}, function(err, allPosts){
+  db.Post.find({}).populate('author').exec(function(err, allPosts){
     if (err){
       console.log("error: ", err);
       res.status(500).send(err);
@@ -57,7 +56,7 @@ app.post('/api/posts', function (req, res) {
   });
 
   // save new post in db
-  newPost.save(function (err, savedPost) { 
+  db.newPost.save(function (err, savedPost) { 
     if (err) {
       console.log("error: ",err);
       res.status(500).send(err);
@@ -76,7 +75,7 @@ app.get('/api/posts/:id', function(req, res) {
   var targetId = req.params.id
 
   // find item in database matching the id
-  Post.findOne({_id: targetId}, function(err, foundPost){
+  db.Post.findOne({_id: targetId}, function(err, foundPost){
     console.log(foundPost);
     if(err){
       console.log("error: ", err);
@@ -96,7 +95,7 @@ app.put('/api/posts/:id', function(req, res) {
   var targetId = req.params.id;
 
   // find item in `posts` array matching the id
-  Post.findOne({_id: targetId}, function(err, foundPost){
+  db.Post.findOne({_id: targetId}, function(err, foundPost){
     console.log(foundPost); 
 
     if(err){
@@ -131,7 +130,7 @@ app.delete('/api/posts/:id', function(req, res) {
   var targetId = req.params.id;
 
  // remove item from the db that matches the id
-   Post.findOneAndRemove({_id: targetId}, function (err, deletedPost) {
+   db.Post.findOneAndRemove({_id: targetId}, function (err, deletedPost) {
     if (err){
       res.status(500).send(err);
     } else {
